@@ -1,2 +1,2 @@
 # ParallaxImageView
-ParallaxImageView
+ParallaxImageView with Data Binding
