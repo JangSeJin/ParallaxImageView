@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final int MAX_ALPHA = 225;
+    private final int EXTRA_HEIGHT = 6;
 
     private RecyclerView mRecyclerView;
     private ViewAdapter mAdapter;
@@ -23,14 +23,16 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Model> mList;
 
-    int mHeight;
+    int mHeight; // 원래 헤더 높이
+    int mExtraHeight; // 추가 헤더 높이
     float mFixX;
     float mFixY;
     float mMoveX;
     float mMoveY;
+    float mHeaderY;
+    float mDiffHeader;
     float mDiffX;
     float mDiffY;
-    float mTemp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,33 +51,45 @@ public class MainActivity extends AppCompatActivity {
 
         // 0 > 투명, 1 > 불투명
         mHeader.setAlpha((float) 0.0);
-        mHeight = getResources().getDimensionPixelOffset(R.dimen.header) * 5; // 스크롤 Y 값과 header 높이 값이 맞지 않음
+
+        mHeight = getResources().getDimensionPixelOffset(R.dimen.header);
+        mHeader.setY(-mHeight); // 최초 헤더를 숨김
 
         ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
 
-                Log.e("sjjang", "height : " + mHeight);
+                try {
+                    Log.e("sjjang", "height : " + mHeight);
 
-                mFixX = (float) mFix.getX();
-                mFixY = (float) mFix.getY();
-                Log.e("sjjang", "fixX : " + mFixX);
-                Log.e("sjjang", "fixY : " + mFixY);
+                    mExtraHeight = mHeight * EXTRA_HEIGHT; // 스크롤 Y 값과 header 높이 값이 맞지 않음
 
-                mMoveX = (float) mMove.getX();
-                mMoveY = (float) mMove.getY();
-                Log.e("sjjang", "moveX : " + mMoveX);
-                Log.e("sjjang", "moveY : " + mMoveY);
+                    mFixX = (float) mFix.getX();
+                    mFixY = (float) mFix.getY();
+                    Log.e("sjjang", "fixX : " + mFixX);
+                    Log.e("sjjang", "fixY : " + mFixY);
 
-                mDiffX = (float) Math.abs(mFixX - mMoveX) / mHeight;
-                mDiffY = (float) Math.abs(mFixY - mMoveY) / mHeight;
-                Log.e("sjjang", "diffX : " + mDiffX);
-                Log.e("sjjang", "diffY : " + mDiffY);
+                    mMoveX = (float) mMove.getX();
+                    mMoveY = (float) mMove.getY();
+                    Log.e("sjjang", "moveX : " + mMoveX);
+                    Log.e("sjjang", "moveY : " + mMoveY);
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    mRecyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                } else {
-                    mRecyclerView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    mDiffX = (float) Math.abs(mFixX - mMoveX) / mExtraHeight;
+                    mDiffY = (float) Math.abs(mFixY - mMoveY) / mExtraHeight;
+                    Log.e("sjjang", "diffX : " + mDiffX);
+                    Log.e("sjjang", "diffY : " + mDiffY);
+
+                    mHeaderY = (float) mHeader.getY();
+                    mDiffHeader = (float) mHeight / mExtraHeight;
+                    Log.e("sjjang", "mDiffHeader : " + mDiffHeader);
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        mRecyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    } else {
+                        mRecyclerView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         };
@@ -92,30 +106,24 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
 
-                Log.e("sjjang", "y : " + recyclerView.computeVerticalScrollOffset());
                 int y = recyclerView.computeVerticalScrollOffset();
+                Log.e("sjjang", "y : " + y);
 
-                // header alpha
-                mHeader.setAlpha(getAlpha(y));
-
-//                07-11 09:17:30.152 7202-7202/com.hour24.parallaximageview E/sjjang: height : 1000
-//                07-11 09:17:30.152 7202-7202/com.hour24.parallaximageview E/sjjang: fixX : 1280
-//                07-11 09:17:30.152 7202-7202/com.hour24.parallaximageview E/sjjang: fixY : 40
-//                07-11 09:17:30.152 7202-7202/com.hour24.parallaximageview E/sjjang: moveX : 1120
-//                07-11 09:17:30.152 7202-7202/com.hour24.parallaximageview E/sjjang: moveY : 320
-//                07-11 09:17:30.152 7202-7202/com.hour24.parallaximageview E/sjjang: diffX : 6.25
-//                07-11 09:17:30.152 7202-7202/com.hour24.parallaximageview E/sjjang: diffY : 280.0
-
+//                // Header
 //                if (y < 1) {
 //                    // 최초 위치
-//                    mMove.setY(mMoveY);
-//                } else if (y >= 1 && y <= mHeight) {
-//                    // Moving;
-//                    mMove.setY(mMoveY - (mDiffY * y));
+//                    mHeader.setY(-mHeight);
+//                } else if (y >= 1 && y <= mExtraHeight) {
+//                    mHeader.setY((float) mHeaderY + (mDiffHeader * y));
 //                } else {
-//                    // 스크롤 내리고 난 뒤 위치
-//                    mMove.setY(mFixY);
+//                    // 스크롤 마지막 위치
+//                    mHeader.setY(0);
 //                }
+
+                mHeader.setY(getHeaderY(y));
+                mHeader.setAlpha(getHeaderAlpha(y)); // header alpha
+
+                // Get Move X, Y
                 mMove.setX(getMoveX(y));
                 mMove.setY(getMoveY(y));
             }
@@ -123,23 +131,43 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Get Alpha
-    private float getAlpha(int y) {
+    private float getHeaderAlpha(int y) {
         try {
-            // 헤더 높이 만큼 Alpha 값 구함
-            if (y > 0 && y <= mHeight) {
-                return (float) y / mHeight;
-            }
-
-            // y 값 한번 더 체크
             if (y < 1) {
+                // 최초 위치
                 return (float) 0.0;
-            } else if (y >= mHeight) {
+            } else if (y >= 1 && y <= mExtraHeight) {
+                // Moving;
+                return (float) y / mExtraHeight;
+            } else {
+                // 스크롤 내리고 난 뒤 위치
                 return (float) 1.0;
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return (float) 1.0;
         }
+
+        return (float) 1.0;
+    }
+
+    // Get Header Y Point
+    private float getHeaderY(int y) {
+        try {
+            if (y < 1) {
+                // 최초 위치
+                return (float) -mHeight;
+            } else if (y >= 1 && y <= mExtraHeight) {
+                // Moving;
+                return (float) mHeaderY + (mDiffHeader * y);
+            } else {
+                // 스크롤 내리고 난 뒤 위치
+                return (float) 0.0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return (float) 0.0;
     }
 
     // Get Move X Point
@@ -148,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
             if (y < 1) {
                 // 최초 위치
                 return mMoveX;
-            } else if (y >= 1 && y <= mHeight) {
+            } else if (y >= 1 && y <= mExtraHeight) {
                 // Moving;
                 return (float) mMoveX + (mDiffX * y);
             } else {
@@ -157,8 +185,9 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return mFixX;
         }
+
+        return mFixX;
     }
 
     // Get Move Y Point
@@ -167,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
             if (y < 1) {
                 // 최초 위치
                 return mMoveY;
-            } else if (y >= 1 && y <= mHeight) {
+            } else if (y >= 1 && y <= mExtraHeight) {
                 // Moving;
                 return (float) mMoveY - (mDiffY * y);
             } else {
@@ -176,8 +205,9 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return mFixY;
         }
+
+        return mFixY;
     }
 
     public ArrayList<Model> getList() {
