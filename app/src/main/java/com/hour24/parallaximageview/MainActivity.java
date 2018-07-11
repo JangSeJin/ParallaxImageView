@@ -15,6 +15,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     private final int EXTRA_HEIGHT = 6;
+    private final int MOVE_BACKGROUND_ALPHA = 150;
 
     private RecyclerView mRecyclerView;
     private ViewAdapter mAdapter;
@@ -22,12 +23,15 @@ public class MainActivity extends AppCompatActivity {
     private ImageView mLogo;
     private View mFix;
     private View mMove;
+    private View mMoveBg;
 
     private ArrayList<Model> mList;
 
     int mHeight; // 원래 헤더 높이
     int mExtraHeight; // 추가 헤더 높이
     int mLogoHeight;
+    int mMoveHeight;
+    int mMoveBgHeight;
     float mFixX;
     float mFixY;
     float mMoveX;
@@ -45,10 +49,11 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        mHeader = findViewById(R.id.header);
-        mLogo = (ImageView) findViewById(R.id.logo);
-        mFix = findViewById(R.id.fix);
+        mHeader = findViewById(R.id.header); // 헤더
+        mLogo = (ImageView) findViewById(R.id.logo); // 로고
+        mFix = findViewById(R.id.fix); // 기준 View
         mMove = findViewById(R.id.move);
+        mMoveBg = findViewById(R.id.move_bg);
 
         mAdapter = new ViewAdapter(this, getList());
         mRecyclerView.setAdapter(mAdapter);
@@ -58,15 +63,37 @@ public class MainActivity extends AppCompatActivity {
 
         // 0 > 투명, 1 > 불투명
         mHeader.setAlpha((float) 0.0);
-        mLogo.setAlpha((float) 0.0);
         mHeader.setY(-mHeight); // 최초 헤더를 숨김
+
+        mLogo.setAlpha((float) 0.0);
+        mMoveBg.setAlpha((float) 1.0);
+
 
         ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
 
                 try {
-                    Log.e("sjjang", "height : " + mHeight);
+
+                    Log.e("sjjang", "mExtraHeight : " + mExtraHeight);
+
+                    // 헤더 Y Point
+                    mHeaderY = (float) mHeader.getY();
+                    // 스크롤에 따라 이동할 헤더 값
+                    mDiffHeader = (float) mHeight / mExtraHeight;
+                    Log.e("sjjang", "mDiffHeader : " + mDiffHeader);
+
+
+                    // Move Background
+                    mMoveHeight = mMove.getHeight();
+                    Log.e("sjjang", "mMoveHeight : " + mMoveHeight);
+
+                    // Move Background
+                    mMoveBgHeight = mMoveBg.getHeight();
+                    Log.e("sjjang", "mMoveBgHeight : " + mMoveBgHeight);
+
+                    // Logo
+                    mLogoHeight = mLogo.getHeight();
 
                     // 스크롤 후 이동할 View
                     mFixX = (float) mFix.getX();
@@ -81,19 +108,11 @@ public class MainActivity extends AppCompatActivity {
                     Log.e("sjjang", "moveY : " + mMoveY);
 
                     // 스크롤에 따라 이동할 값 (수치)
-                    mDiffX = (float) Math.abs(mFixX - mMoveX) / mExtraHeight;
-                    mDiffY = (float) Math.abs(mFixY - mMoveY) / mExtraHeight;
+                    mDiffX = (float) Math.abs(mFixX - mMoveX) / (mExtraHeight - mMoveBgHeight);
+                    mDiffY = (float) Math.abs(mFixY - mMoveY) / (mExtraHeight - mMoveBgHeight);
                     Log.e("sjjang", "diffX : " + mDiffX);
                     Log.e("sjjang", "diffY : " + mDiffY);
 
-                    // 헤더 Y Point
-                    mHeaderY = (float) mHeader.getY();
-                    // 스크롤에 따라 이동할 헤더 값
-                    mDiffHeader = (float) mHeight / mExtraHeight;
-                    Log.e("sjjang", "mDiffHeader : " + mDiffHeader);
-
-                    // Logo
-                    mLogoHeight = mLogo.getHeight();
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                         mRecyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
@@ -128,7 +147,10 @@ public class MainActivity extends AppCompatActivity {
                 // Set Logo
                 mLogo.setAlpha(getLogoAlpha(y));
 
-                // Set Move X, Y
+                // Set Alpha Background
+                mMoveBg.setAlpha(getMoveBackgroundAlpha(y));
+
+                // Set Move X, Y - moveBg 처리 후 움직임
                 mMove.setX(getMoveX(y));
                 mMove.setY(getMoveY(y));
 
@@ -193,15 +215,33 @@ public class MainActivity extends AppCompatActivity {
         return (float) 1.0;
     }
 
+    // Get Move Background Alpha
+    private float getMoveBackgroundAlpha(int y) {
+        try {
+            if (y < 1) {
+                return (float) 1.0;
+            } else if (y >= 1 && y <= mMoveBgHeight) {
+                // Moving
+                return (1 - (float) y / mMoveBgHeight);
+            } else {
+                return (float) 0.0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return (float) 0.0;
+    }
+
     // Get Move X Point
     private float getMoveX(int y) {
         try {
-            if (y < 1) {
+            if (y < mMoveBgHeight) {
                 // 최초 위치
                 return mMoveX;
-            } else if (y >= 1 && y <= mExtraHeight) {
+            } else if (y >= mMoveBgHeight && y <= mExtraHeight) {
                 // Moving;
-                return (float) mMoveX + (mDiffX * y);
+                return (float) mMoveX + (mDiffX * (y - mMoveBgHeight));
             } else {
                 // 스크롤 내리고 난 뒤 위치
                 return mFixX;
@@ -216,12 +256,12 @@ public class MainActivity extends AppCompatActivity {
     // Get Move Y Point
     private float getMoveY(int y) {
         try {
-            if (y < 1) {
+            if (y < mMoveBgHeight) {
                 // 최초 위치
                 return mMoveY;
-            } else if (y >= 1 && y <= mExtraHeight) {
+            } else if (y >= mMoveBgHeight && y <= mExtraHeight) {
                 // Moving;
-                return (float) mMoveY - (mDiffY * y);
+                return (float) mMoveY - (mDiffY * (y - mMoveBgHeight));
             } else {
                 // 스크롤 내리고 난 뒤 위치
                 return mFixY;
