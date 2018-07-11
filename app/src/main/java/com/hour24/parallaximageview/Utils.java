@@ -18,20 +18,20 @@ public class Utils {
     public static void setLoadImage(final ParallaxImageView view, String url) {
         try {
 
-            final ImageView imageView = new ImageView(view.getContext());
-            Picasso.get()
-                    .load(url)
-                    .into(imageView, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            view.setImageDrawable(imageView.getDrawable());
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-
-                        }
-                    });
+//            final ImageView imageView = new ImageView(view.getContext());
+//            Picasso.get()
+//                    .load(url)
+//                    .into(imageView, new Callback() {
+//                        @Override
+//                        public void onSuccess() {
+//                            view.setImageDrawable(imageView.getDrawable());
+//                        }
+//
+//                        @Override
+//                        public void onError(Exception e) {
+//
+//                        }
+//                    });
 
         } catch (Exception e) {
             e.printStackTrace();
