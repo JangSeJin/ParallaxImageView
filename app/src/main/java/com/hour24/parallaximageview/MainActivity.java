@@ -106,17 +106,18 @@ public class MainActivity extends AppCompatActivity {
 //                07-11 09:17:30.152 7202-7202/com.hour24.parallaximageview E/sjjang: diffX : 6.25
 //                07-11 09:17:30.152 7202-7202/com.hour24.parallaximageview E/sjjang: diffY : 280.0
 
-                if (y < 1) {
-                    // 최초 위치
-                    mMove.setY(mMoveY);
-                } else if (y >= 1 && y <= mHeight) {
-                    // Moving;
-                    mMove.setY(mMoveY - (mDiffY * y));
-                } else {
-                    // 스크롤 내리고 난 뒤 위치
-                    mMove.setY(mFixY);
-                }
+//                if (y < 1) {
+//                    // 최초 위치
+//                    mMove.setY(mMoveY);
+//                } else if (y >= 1 && y <= mHeight) {
+//                    // Moving;
+//                    mMove.setY(mMoveY - (mDiffY * y));
+//                } else {
+//                    // 스크롤 내리고 난 뒤 위치
+//                    mMove.setY(mFixY);
+//                }
                 mMove.setX(getMoveX(y));
+                mMove.setY(getMoveY(y));
             }
         });
     }
@@ -137,9 +138,8 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return (float) 1.0;
         }
-
-        return (float) 1.0;
     }
 
     // Get Move X Point
@@ -157,13 +157,28 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return mFixX;
         }
-
-        return mFixX;
     }
 
     // Get Move Y Point
-
+    private float getMoveY(int y) {
+        try {
+            if (y < 1) {
+                // 최초 위치
+                return mMoveY;
+            } else if (y >= 1 && y <= mHeight) {
+                // Moving;
+                return (float) mMoveY - (mDiffY * y);
+            } else {
+                // 스크롤 내리고 난 뒤 위치
+                return mFixY;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return mFixY;
+        }
+    }
 
     public ArrayList<Model> getList() {
 
