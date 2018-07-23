@@ -2,6 +2,7 @@ package com.hour24.parallaximageview;
 
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -169,34 +170,41 @@ public class HeaderAnimation {
     public void animateShapeSearchBg() {
 
         // 큰값 > 작은값
-        ValueAnimator anim = ValueAnimator.ofInt(mSearchBg.getWidth(), mSearchBgHeight);
-        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                int val = (Integer) valueAnimator.getAnimatedValue();
-                ViewGroup.LayoutParams layoutParams = mSearchBg.getLayoutParams();
-                layoutParams.width = val;
-                mSearchBg.requestLayout();
-            }
-        });
+        if (mSearchBg != null) {
+            ValueAnimator anim = ValueAnimator.ofInt(mSearchBg.getWidth(), mSearchBgHeight);
+            anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                    try {
+                        int val = (Integer) valueAnimator.getAnimatedValue();
+                        ViewGroup.LayoutParams layoutParams = mSearchBg.getLayoutParams();
+                        layoutParams.width = val;
+                        mSearchBg.requestLayout();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            anim.setDuration(500);
+            anim.start();
 
-        anim.setDuration(500);
-        anim.start();
-
-        anim = ValueAnimator.ofInt(mSearchBg.getHeight(), mSearchBgHeight);
-        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                int val = (Integer) valueAnimator.getAnimatedValue();
-                ViewGroup.LayoutParams layoutParams = mSearchBg.getLayoutParams();
-                layoutParams.height = val;
-                mSearchBg.requestLayout();
-            }
-        });
-
-        anim.setDuration(500);
-        anim.start();
-
+            anim = ValueAnimator.ofInt(mSearchBg.getHeight(), mSearchBgHeight);
+            anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                    try {
+                        int val = (Integer) valueAnimator.getAnimatedValue();
+                        ViewGroup.LayoutParams layoutParams = mSearchBg.getLayoutParams();
+                        layoutParams.height = val;
+                        mSearchBg.requestLayout();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            anim.setDuration(500);
+            anim.start();
+        }
     }
 
     // Get Alpha
