@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="header">50dp</dimen>
+    <dimen name="search">24dp</dimen>
+    <dimen name="search_bg_expand">40dp</dimen>
+    <dimen name="search_bg_collapse">45dp</dimen>
 </resources>

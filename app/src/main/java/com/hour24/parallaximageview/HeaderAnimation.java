@@ -1,10 +1,12 @@
 package com.hour24.parallaximageview;
 
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
 /**
@@ -28,7 +30,6 @@ public class HeaderAnimation {
     private int mHeaderHeight; // 원래 헤더 높이
     private int mExtraHeight; // 추가 헤더 높이
     private int mLogoHeight; // 로고 높이
-    private int mSearchHeight; // 검색 버튼 높이
     private int mSearchBgHeight; // 검색 버튼 배경 높이
     private float mSearchFixedX; // 검색 버튼 고정된 X 값
     private float mSearchFixedY; // 검색 버튼 고정된 Y 값
@@ -59,6 +60,8 @@ public class HeaderAnimation {
         mSearchBg = mActivity.findViewById(R.id.search_bg); // 검색 버튼 배경
 
         mHeaderHeight = mActivity.getResources().getDimensionPixelOffset(R.dimen.header);
+        mSearchBgHeight = mActivity.getResources().getDimensionPixelOffset(R.dimen.search_bg_collapse);
+
         mExtraHeight = mHeaderHeight * EXTRA_HEIGHT; // 스크롤 Y 값과 header 높이 값이 맞지 않음
 
         // 0 > 투명, 1 > 불투명
@@ -86,13 +89,7 @@ public class HeaderAnimation {
                     mDiffHeader = (float) mHeaderHeight / mExtraHeight;
                     Log.d(TAG, "diffHeader : " + mDiffHeader);
 
-
                     // Move Background
-                    mSearchHeight = mSearch.getHeight();
-                    Log.d(TAG, " searchHeight : " + mSearchHeight);
-
-                    // Move Background
-                    mSearchBgHeight = mSearchBg.getHeight();
                     Log.d(TAG, " searchBgHeight : " + mSearchBgHeight);
 
                     // Logo
@@ -124,6 +121,9 @@ public class HeaderAnimation {
                     }
 
                     mRecyclerView.addOnScrollListener(mOnScrollListener);
+
+                    // 검색 배경 Animation
+                    animateShapeSearchBg();
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -163,6 +163,40 @@ public class HeaderAnimation {
 
             }
         };
+    }
+
+    // Animate view to get shrink effect.
+    public void animateShapeSearchBg() {
+
+        // 큰값 > 작은값
+        ValueAnimator anim = ValueAnimator.ofInt(mSearchBg.getWidth(), mSearchBgHeight);
+        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                int val = (Integer) valueAnimator.getAnimatedValue();
+                ViewGroup.LayoutParams layoutParams = mSearchBg.getLayoutParams();
+                layoutParams.width = val;
+                mSearchBg.requestLayout();
+            }
+        });
+
+        anim.setDuration(500);
+        anim.start();
+
+        anim = ValueAnimator.ofInt(mSearchBg.getHeight(), mSearchBgHeight);
+        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                int val = (Integer) valueAnimator.getAnimatedValue();
+                ViewGroup.LayoutParams layoutParams = mSearchBg.getLayoutParams();
+                layoutParams.height = val;
+                mSearchBg.requestLayout();
+            }
+        });
+
+        anim.setDuration(500);
+        anim.start();
+
     }
 
     // Get Alpha

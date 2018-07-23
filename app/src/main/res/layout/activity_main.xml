@@ -11,6 +11,7 @@
         android:scrollbars="vertical" />
 
     <RelativeLayout
+        android:id="@+id/search_layout"
         android:layout_width="match_parent"
         android:layout_height="100dp">
 
@@ -32,41 +33,43 @@
 
             <View
                 android:id="@+id/search_fixed"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="@dimen/search"
+                android:layout_height="@dimen/search"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:layout_marginRight="10dp"
-                android:background="#00ff00" />
+                android:background="#00ff00"
+                android:visibility="invisible" />
         </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true">
+            android:layout_height="114dp">
 
             <View
                 android:id="@+id/search_bg"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_alignParentBottom="true"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/search_bg_expand"
                 android:layout_alignParentRight="true"
                 android:layout_centerInParent="true"
-                android:layout_marginRight="25dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
                 android:background="#eaeaea" />
 
-            <View
+            <RelativeLayout
                 android:id="@+id/search"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_alignParentBottom="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerInParent="true"
-                android:layout_marginBottom="5dp"
-                android:layout_marginRight="35dp"
-                android:background="#0000ff" />
+                android:layout_marginRight="30dp">
+
+                <View
+                    android:layout_width="@dimen/search"
+                    android:layout_height="@dimen/search"
+                    android:background="#0000ff" />
+            </RelativeLayout>
+
         </RelativeLayout>
-
     </RelativeLayout>
-
 </RelativeLayout>
