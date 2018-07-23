@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new ViewAdapter(this, getList());
         mRecyclerView.setAdapter(mAdapter);
 
-        new HeaderScroll(this);
+        new HeaderAnimation(this);
 
     }
 

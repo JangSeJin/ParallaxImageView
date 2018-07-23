@@ -31,7 +31,7 @@
                 android:src="@mipmap/ic_launcher" />
 
             <View
-                android:id="@+id/fix"
+                android:id="@+id/search_fixed"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_alignParentRight="true"
@@ -46,7 +46,7 @@
             android:layout_alignParentRight="true">
 
             <View
-                android:id="@+id/move_bg"
+                android:id="@+id/search_bg"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_alignParentBottom="true"
@@ -56,7 +56,7 @@
                 android:background="#eaeaea" />
 
             <View
-                android:id="@+id/move"
+                android:id="@+id/search"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_alignParentBottom="true"

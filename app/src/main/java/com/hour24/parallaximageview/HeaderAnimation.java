@@ -11,38 +11,38 @@ import android.view.ViewTreeObserver;
  * Created by N16326 on 2018. 7. 11..
  */
 
-public class HeaderScroll {
+public class HeaderAnimation {
 
-    private final String TAG = HeaderScroll.class.getSimpleName();
+    private final String TAG = HeaderAnimation.class.getSimpleName();
     private final int EXTRA_HEIGHT = 6;
 
     private Activity mActivity;
 
     private RecyclerView mRecyclerView;
-    private View mHeader;
-    private View mLogo;
-    private View mFix;
-    private View mMove;
-    private View mMoveBg;
+    private View mHeader; // 헤더
+    private View mLogo; // 로고
+    private View mSearchFixed; // 고정된 검색 버튼
+    private View mSearch; // 검색 버튼
+    private View mSearchBg; // 검색 버튼 배경
 
-    private int mHeight; // 원래 헤더 높이
+    private int mHeaderHeight; // 원래 헤더 높이
     private int mExtraHeight; // 추가 헤더 높이
-    private int mLogoHeight;
-    private int mMoveHeight;
-    private int mMoveBgHeight;
-    private float mFixX;
-    private float mFixY;
-    private float mMoveX;
-    private float mMoveY;
-    private float mHeaderY;
-    private float mDiffHeader;
-    private float mDiffX;
-    private float mDiffY;
+    private int mLogoHeight; // 로고 높이
+    private int mSearchHeight; // 검색 버튼 높이
+    private int mSearchBgHeight; // 검색 버튼 배경 높이
+    private float mSearchFixedX; // 검색 버튼 고정된 X 값
+    private float mSearchFixedY; // 검색 버튼 고정된 Y 값
+    private float mSearchX; // 검색 버튼 X 값
+    private float mSearchY; // 검색 버튼 Y 값
+    private float mHeaderY; // 헤더 Y 값
+    private float mDiffHeader; // 스크롤에 따라 변경할 헤더 값
+    private float mDiffSearchX; // move - fix
+    private float mDiffSearchY; // move - fix
 
     private ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener;
     private RecyclerView.OnScrollListener mOnScrollListener;
 
-    public HeaderScroll(Activity activity) {
+    public HeaderAnimation(Activity activity) {
         this.mActivity = activity;
 
         init();
@@ -54,19 +54,19 @@ public class HeaderScroll {
         mRecyclerView = (RecyclerView) mActivity.findViewById(R.id.recyclerview);
         mHeader = mActivity.findViewById(R.id.header); // 헤더
         mLogo = mActivity.findViewById(R.id.logo); // 로고
-        mFix = mActivity.findViewById(R.id.fix); // 기준 View
-        mMove = mActivity.findViewById(R.id.move);
-        mMoveBg = mActivity.findViewById(R.id.move_bg);
+        mSearch = mActivity.findViewById(R.id.search); // 검색 버튼
+        mSearchFixed = mActivity.findViewById(R.id.search_fixed); // 고정된 검색 버튼 (움직일 기준 값)
+        mSearchBg = mActivity.findViewById(R.id.search_bg); // 검색 버튼 배경
 
-        mHeight = mActivity.getResources().getDimensionPixelOffset(R.dimen.header);
-        mExtraHeight = mHeight * EXTRA_HEIGHT; // 스크롤 Y 값과 header 높이 값이 맞지 않음
+        mHeaderHeight = mActivity.getResources().getDimensionPixelOffset(R.dimen.header);
+        mExtraHeight = mHeaderHeight * EXTRA_HEIGHT; // 스크롤 Y 값과 header 높이 값이 맞지 않음
 
         // 0 > 투명, 1 > 불투명
         mHeader.setAlpha((float) 0.0);
-        mHeader.setY(-mHeight); // 최초 헤더를 숨김
+        mHeader.setY(-mHeaderHeight); // 최초 헤더를 숨김
 
         mLogo.setAlpha((float) 0.0);
-        mMoveBg.setAlpha((float) 1.0);
+        mSearchBg.setAlpha((float) 1.0);
 
     }
 
@@ -83,38 +83,38 @@ public class HeaderScroll {
                     // 헤더 Y Point
                     mHeaderY = (float) mHeader.getY();
                     // 스크롤에 따라 이동할 헤더 값
-                    mDiffHeader = (float) mHeight / mExtraHeight;
-                    Log.d(TAG, "mDiffHeader : " + mDiffHeader);
+                    mDiffHeader = (float) mHeaderHeight / mExtraHeight;
+                    Log.d(TAG, "diffHeader : " + mDiffHeader);
 
 
                     // Move Background
-                    mMoveHeight = mMove.getHeight();
-                    Log.d(TAG, "mMoveHeight : " + mMoveHeight);
+                    mSearchHeight = mSearch.getHeight();
+                    Log.d(TAG, " searchHeight : " + mSearchHeight);
 
                     // Move Background
-                    mMoveBgHeight = mMoveBg.getHeight();
-                    Log.d(TAG, "mMoveBgHeight : " + mMoveBgHeight);
+                    mSearchBgHeight = mSearchBg.getHeight();
+                    Log.d(TAG, " searchBgHeight : " + mSearchBgHeight);
 
                     // Logo
                     mLogoHeight = mLogo.getHeight();
 
                     // 스크롤 후 이동할 View
-                    mFixX = (float) mFix.getX();
-                    mFixY = (float) mFix.getY();
-                    Log.d(TAG, "fixX : " + mFixX);
-                    Log.d(TAG, "fixY : " + mFixY);
+                    mSearchFixedX = (float) mSearchFixed.getX();
+                    mSearchFixedY = (float) mSearchFixed.getY();
+                    Log.d(TAG, "searchFixedX : " + mSearchFixedX);
+                    Log.d(TAG, "searchFixedY : " + mSearchFixedY);
 
                     // 스크롤에 따라 이동할 View
-                    mMoveX = (float) mMove.getX();
-                    mMoveY = (float) mMove.getY();
-                    Log.d(TAG, "moveX : " + mMoveX);
-                    Log.d(TAG, "moveY : " + mMoveY);
+                    mSearchX = (float) mSearch.getX();
+                    mSearchY = (float) mSearch.getY();
+                    Log.d(TAG, "searchX : " + mSearchX);
+                    Log.d(TAG, "searchY : " + mSearchY);
 
                     // 스크롤에 따라 이동할 값 (수치)
-                    mDiffX = (float) Math.abs(mFixX - mMoveX) / (mExtraHeight - mMoveBgHeight);
-                    mDiffY = (float) Math.abs(mFixY - mMoveY) / (mExtraHeight - mMoveBgHeight);
-                    Log.d(TAG, "diffX : " + mDiffX);
-                    Log.d(TAG, "diffY : " + mDiffY);
+                    mDiffSearchX = (float) Math.abs(mSearchFixedX - mSearchX) / (mExtraHeight - mSearchBgHeight);
+                    mDiffSearchY = (float) Math.abs(mSearchFixedY - mSearchY) / (mExtraHeight - mSearchBgHeight);
+                    Log.d(TAG, "diffSearchX : " + mDiffSearchX);
+                    Log.d(TAG, "diffSearchY : " + mDiffSearchY);
 
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -155,11 +155,11 @@ public class HeaderScroll {
                 mLogo.setAlpha(getLogoAlpha(y));
 
                 // Set Alpha Background
-                mMoveBg.setAlpha(getMoveBackgroundAlpha(y));
+                mSearchBg.setAlpha(getMoveBackgroundAlpha(y));
 
                 // Set Move X, Y - moveBg 처리 후 움직임
-                mMove.setX(getMoveX(y));
-                mMove.setY(getMoveY(y));
+                mSearch.setX(getMoveX(y));
+                mSearch.setY(getMoveY(y));
 
             }
         };
@@ -189,7 +189,7 @@ public class HeaderScroll {
         try {
             if (y < 1) {
                 // 최초 위치
-                return (float) -mHeight;
+                return (float) -mHeaderHeight;
             } else if (y >= 1 && y <= mExtraHeight) {
                 // Moving;
                 return (float) mHeaderY + (mDiffHeader * y);
@@ -227,9 +227,9 @@ public class HeaderScroll {
         try {
             if (y < 1) {
                 return (float) 1.0;
-            } else if (y >= 1 && y <= mMoveBgHeight) {
+            } else if (y >= 1 && y <= mSearchBgHeight) {
                 // Moving
-                return (1 - (float) y / mMoveBgHeight);
+                return (1 - (float) y / mSearchBgHeight);
             } else {
                 return (float) 0.0;
             }
@@ -243,40 +243,40 @@ public class HeaderScroll {
     // Get Move X Point
     private float getMoveX(int y) {
         try {
-            if (y < mMoveBgHeight) {
+            if (y < mSearchBgHeight) {
                 // 최초 위치
-                return mMoveX;
-            } else if (y >= mMoveBgHeight && y <= mExtraHeight) {
+                return mSearchX;
+            } else if (y >= mSearchBgHeight && y <= mExtraHeight) {
                 // Moving;
-                return (float) mMoveX + (mDiffX * (y - mMoveBgHeight));
+                return (float) mSearchX + (mDiffSearchX * (y - mSearchBgHeight));
             } else {
                 // 스크롤 내리고 난 뒤 위치
-                return mFixX;
+                return mSearchFixedX;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return mFixX;
+        return mSearchFixedX;
     }
 
     // Get Move Y Point
     private float getMoveY(int y) {
         try {
-            if (y < mMoveBgHeight) {
+            if (y < mSearchBgHeight) {
                 // 최초 위치
-                return mMoveY;
-            } else if (y >= mMoveBgHeight && y <= mExtraHeight) {
+                return mSearchY;
+            } else if (y >= mSearchBgHeight && y <= mExtraHeight) {
                 // Moving;
-                return (float) mMoveY - (mDiffY * (y - mMoveBgHeight));
+                return (float) mSearchY - (mDiffSearchY * (y - mSearchBgHeight));
             } else {
                 // 스크롤 내리고 난 뒤 위치
-                return mFixY;
+                return mSearchFixedY;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return mFixY;
+        return mSearchFixedY;
     }
 }
